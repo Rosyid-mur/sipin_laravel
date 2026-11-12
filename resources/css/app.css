@@ -1,0 +1,52 @@
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+    /* Polish Dark Mode untuk elemen form & tabel */
+    .dark input, .dark select, .dark textarea {
+        color-scheme: dark; 
+    }
+    
+    .dark .bg-white { @apply bg-gray-800; }
+    .dark .bg-gray-50 { @apply bg-gray-900; }
+    .dark .bg-gray-100 { @apply bg-gray-700; }
+    .dark .border-gray-100 { @apply border-gray-700; }
+    .dark .border-gray-200 { @apply border-gray-700; }
+    .dark .border-gray-300 { @apply border-gray-600; }
+    .dark .text-gray-800 { @apply text-white; }
+    .dark .text-gray-700 { @apply text-gray-200; }
+    .dark .text-gray-600 { @apply text-gray-300; }
+    .dark .text-gray-500 { @apply text-gray-400; }
+    
+    .dark table thead { @apply bg-gray-700 text-gray-300; }
+    .dark table tbody { @apply border-gray-700; }
+    .dark table tr:hover { @apply bg-gray-700; }
+}
+
+/* Efek Hover untuk Tabel Data */
+table tbody tr {
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Efek Transisi untuk Semua Tombol */
+button, a {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Sembunyikan Scrollbar di Sidebar (opsional, agar lebih rapi) */
+nav::-webkit-scrollbar {
+    width: 5px;
+}
+nav::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
