@@ -52,10 +52,10 @@
                 </td>
                 <td class="p-4 text-right">
                     @if($fine->status_denda == 'Belum Lunas')
-                        <form action="{{ route('admin.fines.bayar', $fine->id) }}" method="POST" class="inline-block form-bayar">
-                            @csrf @method('PUT')
-                            <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium btn-bayar">Tandai Lunas</button>
-                        </form>
+                        <form action="{{ route('admin.fines.bayar', $fine->id) }}" method="POST" class="form-bayar">
+    @csrf @method('PUT')
+    <button type="button" class="bg-blue-600 text-white px-3 py-1 rounded text-xs btn-bayar">Tandai Lunas</button>
+</form>
                     @else
                         <span class="text-gray-400 text-xs italic">Selesai</span>
                     @endif
@@ -77,9 +77,9 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.form-bayar').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+        document.querySelectorAll('.btn-bayar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                let form = this.closest('form');
                 Swal.fire({
                     title: 'Konfirmasi Pelunasan',
                     text: "Apakah denda ini sudah dibayar lunas?",

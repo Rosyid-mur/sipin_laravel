@@ -71,6 +71,16 @@
         const errorMessage = "{{ session('error') }}";
         if (successMessage) Swal.fire({ icon: 'success', title: 'Berhasil!', text: successMessage, showConfirmButton: false, timer: 2000 });
         if (errorMessage) Swal.fire({ icon: 'error', title: 'Gagal!', text: errorMessage });
+
+        // Mencegah input angka minus di semua form
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value < 0) this.value = 1;
+        });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === '-') e.preventDefault();
+        });
+    });
     </script>
     
     @stack('scripts')

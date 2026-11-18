@@ -47,13 +47,19 @@
                     <a href="#fitur" class="bg-white text-blue-600 border-2 border-blue-100 px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all">Lihat Fitur</a>
                 </div>
             </div>
-            <div class="md:w-1/2 flex justify-center relative">
-                <div class="relative w-full max-w-lg">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl transform rotate-3 scale-105 opacity-20 blur-lg"></div>
-                    <!-- Ganti gambar ini dengan screenshot dashboard SIPIN Anda -->
-                    <img src="{{ asset('images/dashboard-preview.png') }}" alt="Dashboard SIPIN" class="relative rounded-2xl shadow-2xl border-4 border-white w-full object-cover h-[350px]">
-                </div>
-            </div>
+            <div class="relative w-full max-w-lg mx-auto">
+    <!-- Efek Glow di belakang gambar -->
+    <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+    <!-- Bingkai Gambar -->
+    <div class="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 p-2">
+        <div class="flex space-x-1.5 px-3 py-2 bg-gray-50 rounded-t-lg border-b border-gray-100">
+            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+        </div>
+        <img src="{{ asset('images/dashboard-preview.png') }}" alt="Dashboard SIPIN" class="w-full object-cover rounded-b-lg">
+    </div>
+</div>
         </div>
     </section>
 

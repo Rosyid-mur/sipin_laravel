@@ -76,7 +76,7 @@
                         <form action="{{ route('admin.loans.verifikasi', $loan->id) }}" method="POST" class="inline-block">
                             @csrf @method('PUT')
                             <input type="hidden" name="status" value="Approved">
-                            <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">Setujui</button>
+                            <button type="button" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 btn-approve" data-action="{{ route('admin.loans.verifikasi', $loan->id) }}">Setujui</button>
                         </form>
                         
                         <button type="button" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 btn-reject" data-action="{{ route('admin.loans.verifikasi', $loan->id) }}">
@@ -174,5 +174,28 @@
             });
         });
     });
+
+    document.querySelectorAll('.btn-approve').forEach(btn => {
+    btn.addEventListener('click', function() {
+        let actionUrl = this.getAttribute('data-action');
+        Swal.fire({
+            title: 'Setujui Peminjaman?',
+            html: "Dengan menyetujui, stok barang akan <b>dikurangi otomatis</b> dan siswa/guru dapat segera mengambil barang di Lab.<br><br>Pastikan barang fisik sudah siap!",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#10B981',
+            confirmButtonText: 'Ya, Setujui'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = actionUrl;
+                form.innerHTML = `@csrf @method('PUT') <input type="hidden" name="status" value="Approved">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
+});
 </script>
 @endpush

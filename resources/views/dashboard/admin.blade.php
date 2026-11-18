@@ -59,7 +59,8 @@
     </div>
 
     <!-- Pending -->
-    <div class="bg-yellow-50/30 p-4 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500">
+    <!-- Ganti baris div Pending menjadi seperti ini -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-yellow-500">
         <div class="flex items-center justify-between mb-2">
             <p class="text-xs text-gray-500 font-bold uppercase">Pending</p>
             <i data-lucide="clock" class="w-5 h-5 text-yellow-500"></i>

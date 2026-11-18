@@ -1,4 +1,4 @@
-<aside id="sidebar-menu" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col h-screen shadow-sm">
+<aside id="sidebar-menu" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col h-[100dvh] md:h-screen shadow-sm">
     
     <!-- Logo & Tombol Close (Hanya di HP) -->
     <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100 dark:border-gray-700">

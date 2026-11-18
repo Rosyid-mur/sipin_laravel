@@ -13,7 +13,7 @@
 </div>
 
 <!-- Tabel Kategori -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-x-auto">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-x-auto w-full">
     <table class="w-full text-left border-collapse whitespace-nowrap">
         <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-xs uppercase tracking-wider">
             <tr>
@@ -30,20 +30,17 @@
                 <td class="px-6 py-4 font-semibold text-blue-600 dark:text-blue-400">{{ $cat->kode_kategori }}</td>
                 <td class="px-6 py-4 font-medium">{{ $cat->nama_kategori }}</td>
                 <td class="px-6 py-4">{{ $cat->inventories_count }} Unit</td>
-                <td class="px-6 py-4">{{ $cat->max_hari }} Hari, Maks. {{ $cat->max_unit }} Unit</td>
                 <td class="px-6 py-4">
-    <p>{{ $cat->max_hari }} Hari, Maks. {{ $cat->max_unit }} Unit</p>
-    @if($cat->butuh_guru)
-        <span class="inline-block mt-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-200">
-            Wajib Acc Guru
-        </span>
-    @endif
-</td>
+                    <p>{{ $cat->max_hari }} Hari, Maks. {{ $cat->max_unit }} Unit</p>
+                    @if($cat->butuh_guru)
+                        <span class="inline-block mt-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold border border-purple-200">
+                            Wajib Acc Guru
+                        </span>
+                    @endif
+                </td>
+                <!-- Bagian Aksi dipastikan menggunakan text-right -->
                 <td class="px-6 py-4 text-right space-x-2">
-                    <!-- Tombol Edit -->
                     <button type="button" class="btn-edit text-yellow-500 hover:text-yellow-600 font-medium" data-category="{{ json_encode($cat) }}">Edit</button>
-                    
-                    <!-- Form Hapus -->
                     <form action="{{ route('categories.destroy', $cat->id) }}" method="POST" class="inline-block form-delete">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-red-500 hover:text-red-600 font-medium">Hapus</button>

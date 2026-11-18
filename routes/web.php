@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     // Dashboard (Akan diatur di Controller berdasarkan Role)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::put('/notifications/mark-read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
 
     // ================= RUTE ADMIN =================
     Route::middleware('role:admin')->group(function () {

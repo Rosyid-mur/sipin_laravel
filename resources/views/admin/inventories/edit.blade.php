@@ -13,9 +13,8 @@
 
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 max-w-3xl transition-colors duration-300">
     <form action="{{ route('inventories.update', $inventory->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-        
+    @csrf
+    @method('PUT')
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori <span class="text-red-500">*</span></label>

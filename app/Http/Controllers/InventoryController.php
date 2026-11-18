@@ -83,44 +83,44 @@ class InventoryController extends Controller
     }
 
     public function update(Request $request, Inventory $inventory)
-    {
-        $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'kode_inventaris' => 'required|max:50|unique:inventories,kode_inventaris,' . $inventory->id,
-            'nama_alat' => 'required|max:150',
-            'stok_total' => 'required|integer|min:1',
-            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
-            'lokasi' => 'required|max:100',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+{
+    $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'nama_alat' => 'required|max:150',
+        'stok_total' => 'required|integer|min:1',
+        'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+        'lokasi' => 'required|max:100',
+        'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
 
-        $data = $request->except('gambar');
-        $selisih_stok = $request->stok_total - $inventory->stok_total;
-        
-        if ($request->hasFile('gambar')) {
-            if ($inventory->gambar) {
-                \Storage::disk('public')->delete($inventory->gambar);
-            }
-            $data['gambar'] = $request->file('gambar')->store('inventories', 'public');
+    $data = $request->except('gambar');
+    
+    // Logika penyesuaian stok
+    $selisih_stok = $request->stok_total - $inventory->stok_total;
+    
+    if ($request->hasFile('gambar')) {
+        if ($inventory->gambar && file_exists(public_path($inventory->gambar))) {
+            unlink(public_path($inventory->gambar)); // Hapus gambar lama
         }
-
-        $inventory->update([
-            'category_id' => $request->category_id,
-            'kode_inventaris' => $request->kode_inventaris,
-            'nama_alat' => $request->nama_alat,
-            'deskripsi' => $request->deskripsi,
-            'stok_total' => $request->stok_total,
-            'stok_tersedia' => $inventory->stok_tersedia + $selisih_stok,
-            'kondisi' => $request->kondisi,
-            'lokasi' => $request->lokasi,
-            'gambar' => $data['gambar'] ?? $inventory->gambar,
-        ]);
-
-        // Catat Log
-        ActivityLog::record('Edit Inventaris', 'Mengubah data barang: ' . $request->nama_alat);
-
-        return redirect()->route('inventories.index')->with('success', 'Data inventaris berhasil diperbarui!');
+        $file = $request->file('gambar');
+        $nama_file = time() . "_" . $file->getClientOriginalName();
+        $file->move(public_path('images/inventaris'), $nama_file);
+        $data['gambar'] = 'images/inventaris/' . $nama_file;
     }
+
+    $inventory->update([
+        'category_id' => $request->category_id,
+        'nama_alat' => $request->nama_alat,
+        'deskripsi' => $request->deskripsi,
+        'stok_total' => $request->stok_total,
+        'stok_tersedia' => $inventory->stok_tersedia + $selisih_stok,
+        'kondisi' => $request->kondisi,
+        'lokasi' => $request->lokasi,
+        'gambar' => $data['gambar'] ?? $inventory->gambar,
+    ]);
+
+    return redirect()->route('inventories.index')->with('success', 'Data inventaris berhasil diperbarui!');
+}
 
     public function destroy(Inventory $inventory)
     {

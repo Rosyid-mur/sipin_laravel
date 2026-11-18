@@ -7,11 +7,11 @@ use App\Models\Inventory;
 use App\Models\LoanDetail;
 use App\Models\ActivityLog; // Tambahan untuk Log
 use App\Models\Cart;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
 class LoanController extends Controller
 {
     // ================= SISI SISWA =================
@@ -114,6 +114,21 @@ class LoanController extends Controller
             'status' => $request->status,
             'catatan_admin' => $request->catatan_admin,
         ]);
+
+        // --- KODE NOTIFIKASI KE SISWA ---
+        if ($request->status == 'Approved') {
+            \App\Models\Notification::create([
+                'user_id' => $loan->user_id,
+                'title' => 'Peminjaman Disetujui',
+                'message' => 'Pengajuan Anda (' . $loan->kode_transaksi . ') telah disetujui. Silakan ambil barang di Lab.',
+            ]);
+        } elseif ($request->status == 'Rejected') {
+            \App\Models\Notification::create([
+                'user_id' => $loan->user_id,
+                'title' => 'Peminjaman Ditolak',
+                'message' => 'Pengajuan Anda ditolak. Alasan: ' . $request->catatan_admin,
+            ]);
+        }
 
         ActivityLog::record('Verifikasi Peminjaman', 'Memproses pengajuan ' . $loan->kode_transaksi . ' menjadi ' . $request->status);
 
@@ -282,19 +297,26 @@ class LoanController extends Controller
     
         // ================= FITUR KERANJANG (DATABASE) =================
 
-    public function addToCart(Request $request, Inventory $inventory)
+        public function addToCart(Request $request, Inventory $inventory)
     {
-        $request->validate(['jumlah' => 'required|integer|min:1|max:' . $inventory->stok_tersedia]);
-
-        // Cek apakah barang sudah ada di keranjang user ini
-        $cartItem = Cart::where('user_id', Auth::id())->where('inventory_id', $inventory->id)->first();
+        $request->validate(['jumlah' => 'required|integer|min:1']);
         
+        $cartItem = Cart::where('user_id', Auth::id())->where('inventory_id', $inventory->id)->first();
+        $jumlahSekarang = $cartItem ? $cartItem->jumlah : 0;
+        
+        // 1. VALIDASI BATAS MAKSIMAL UNIT DARI KATEGORI
+        if (($jumlahSekarang + $request->jumlah) > $inventory->category->max_unit) {
+            return back()->with('error', 'Gagal! Maksimal peminjaman untuk kategori ini adalah ' . $inventory->category->max_unit . ' unit.');
+        }
+        
+        // 2. VALIDASI STOK TERSEDIA
+        if (($jumlahSekarang + $request->jumlah) > $inventory->stok_tersedia) {
+            return back()->with('error', 'Gagal! Stok tidak mencukupi. Sisa stok: ' . $inventory->stok_tersedia);
+        }
+
+        // 3. SIMPAN KE KERANJANG (DATABASE)
         if ($cartItem) {
-            $newJumlah = $cartItem->jumlah + $request->jumlah;
-            if ($newJumlah > $inventory->stok_tersedia) {
-                return back()->with('error', 'Total barang di keranjang melebihi stok yang tersedia!');
-            }
-            $cartItem->update(['jumlah' => $newJumlah]);
+            $cartItem->update(['jumlah' => $jumlahSekarang + $request->jumlah]);
         } else {
             Cart::create([
                 'user_id' => Auth::id(),
@@ -324,9 +346,8 @@ class LoanController extends Controller
         return redirect()->route('siswa.cart')->with('error', 'Barang tidak ditemukan.');
     }
 
-    public function checkoutCart(Request $request)
+        public function checkoutCart(Request $request)
     {
-        // Ambil data keranjang dari database
         $cart = Cart::with('inventory')->where('user_id', Auth::id())->get();
         
         if ($cart->isEmpty()) {
@@ -339,7 +360,6 @@ class LoanController extends Controller
             'keperluan' => 'required|string|max:255',
         ]);
 
-        // Validasi batas waktu
         $max_hari_diizinkan = 3; 
         foreach($cart as $item) {
             if ($item->inventory->category->max_hari < $max_hari_diizinkan) {
@@ -351,7 +371,7 @@ class LoanController extends Controller
         $tgl_kembali = \Carbon\Carbon::parse($request->tgl_kembali_rencana);
         
         if ($tgl_pinjam->diffInDays($tgl_kembali) > $max_hari_diizinkan) {
-            return back()->with('error', "Gagal! Batas maksimal peminjaman untuk barang di keranjang ini adalah {$max_hari_diizinkan} hari.");
+            return back()->with('error', "Gagal! Batas maksimal peminjaman adalah {$max_hari_diizinkan} hari.");
         }
 
         try {
@@ -367,7 +387,6 @@ class LoanController extends Controller
                 'status' => 'Pending',
             ]);
 
-            // Pindahkan semua item dari tabel carts ke tabel loan_details
             foreach($cart as $item) {
                 if ($item->inventory->stok_tersedia < $item->jumlah) {
                     DB::rollBack();
@@ -380,12 +399,25 @@ class LoanController extends Controller
                     'jumlah' => $item->jumlah,
                 ]);
                 
-                // Hapus dari keranjang setelah masuk detail transaksi
                 $item->delete(); 
             }
 
             DB::commit();
-            ActivityLog::record('Siswa/Guru Meminjam', 'Mengajukan peminjaman dengan kode ' . $kode_transaksi);
+
+            // =========================================================
+            // KODE NOTIFIKASI OTOMATIS (Dijamin berjalan setelah commit)
+            // =========================================================
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            foreach($admins as $admin) {
+                \App\Models\Notification::create([
+                    'user_id' => $admin->id,
+                    'title' => 'Peminjaman Baru',
+                    'message' => Auth::user()->name . ' telah mengajukan peminjaman baru (Pending).',
+                    'is_read' => false,
+                ]);
+            }
+            // =========================================================
+
             return redirect()->route('siswa.peminjaman')->with('success', 'Pengajuan peminjaman berhasil dikirim! Menunggu verifikasi Admin.');
 
         } catch (\Exception $e) {

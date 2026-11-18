@@ -50,3 +50,8 @@ nav::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 10px;
 }
+/* Fix Dropdown Select di Dark Mode */
+.dark select option {
+    background-color: #1f2937; /* Warna gray-800 */
+    color: #ffffff;
+}
